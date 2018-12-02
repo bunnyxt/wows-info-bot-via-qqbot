@@ -1,11 +1,11 @@
 import re
-import pymysql
 import urllib
 import json
 import random
 import time
 
 import ship
+import pr
 import wgapi
 import detoapi
 import meme
@@ -98,9 +98,7 @@ def ship_belong_to_category(ship_id, ship_category):
         return False
 
 
-def gain_ship_detail_display(account_id, ship_category):
-    player_ship_stats = wgapi.get_player_ship_stats(account_id)
-
+def gain_ship_detail_display(account_id, player_ship_stats, ship_category):
     selected_ship_stats = []
     for s in player_ship_stats['data'][str(account_id)]:
         ship_id = s['ship_id']
@@ -114,17 +112,24 @@ def gain_ship_detail_display(account_id, ship_category):
     if _len > 3:
         _len = 3
     for i in range(0, _len):
-        _ship_name = ship.ship_dict[selected_ship_stats[i]['ship_id']].name
+        _ship_id = selected_ship_stats[i]['ship_id']
+        _ship_name = ship.ship_dict[_ship_id].name
         _battles = selected_ship_stats[i]['pvp']['battles']
         _wins = selected_ship_stats[i]['pvp']['wins']
         _damage_dealt = selected_ship_stats[i]['pvp']['damage_dealt']
+        _frag = selected_ship_stats[i]['pvp']['frags']
         _wr = 0
         _avgdmg = 0
+        _avgfrag = 0
         if _battles != 0:
             _wr = _wins / _battles
             _avgdmg = _damage_dealt / _battles
-        ship_detail_display += '\n{0}. {1}\nbattles {2} wr {3}% avgdmg {4}'.format(
-            i + 1, _ship_name, format(_battles, ','), round(_wr*100, 2), format(round(_avgdmg), ','))
+            _avgfrag = _frag / _battles
+        ship_detail_display += '\n{0}. {1}\nbattles {2} wr {3}% avgdmg {4} pr {5}'.format(
+            i + 1,
+            _ship_name, format(_battles, ','),
+            round(_wr * 100, 2), format(round(_avgdmg), ','),
+            format(round(pr.calc_ship_pr(_ship_id, _avgdmg, _wr*100, _avgfrag)), ','))
     return ship_detail_display
 
 
@@ -350,6 +355,11 @@ def onQQMessage(bot, contact, member, content):
                 if battles != 0:
                     avgdmg = damage_dealt / battles
 
+                # get player ship stats for total pr calculation
+                # TODO use right formula to calculate total pr
+                # player_ship_stats = wgapi.get_player_ship_stats(account_id)
+                # total_pr = pr.calc_total_pr(account_id, player_ship_stats)
+
                 # add category display
                 if ship_category:
                     rw.category_display += '\n⬇️3 most played '
@@ -358,15 +368,21 @@ def onQQMessage(bot, contact, member, content):
                     else:
                         rw.category_display += ship_category.upper()
                     rw.category_display += ' stat'
+
+                    # temp player_ship_stats created
+                    # TODO delete after right total pr formula received
+                    player_ship_stats = wgapi.get_player_ship_stats(account_id)
+
                     rw.category_display += gain_ship_detail_display(
-                        account_id, ship_category)
+                        account_id, player_ship_stats, ship_category)
 
                 # add meme
                 rw.meme = meme.meme_mapping(nickname)
 
                 rw.type = '-info'
-                rw.info = '⬇️pvp stat overview\nbattles {0} wr {1}% mbhr {2}%'.format(format(battles, ','), round(
-                    wr * 100, 2), round(mbhr * 100, 2)) + '\n' + 'avgdmg {0} maxdmg {1}'.format(format(round(avgdmg), ','), format(maxdmg, ','))
+                rw.info = '⬇️pvp stat overview\nbattles {0} wr {1}% mbhr {2}%'.format(
+                    format(battles, ','), round(wr * 100, 2), round(mbhr * 100, 2)) + '\n' + 'avgdmg {0} maxdmg {1}'.format(
+                    format(round(avgdmg), ','), format(maxdmg, ','))
                 if nickname == 'momotxdi':
                     if random.randint(0, 1) != 0:
                         rw.info = '⬇️pvp stat overview\nbattles {0} wr {1}% mbhr {2}%'.format(format(battles, ','), round(
