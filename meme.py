@@ -22,7 +22,8 @@ meme_map = {
     ],
     'momotxdi': [
         '\n"系统提示："',
-        '\n"摸摸堂兄弟"'
+        '\n"摸摸堂兄弟"',
+        '\n"批学家momo"'
     ],
     'Cyclopenta_pentalene': [
         '\n"tql"',
