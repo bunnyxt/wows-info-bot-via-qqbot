@@ -62,13 +62,13 @@ def send_via_rw(bot, contact, rw):
 
 def gain_clan_tag_with_brackets(account_id):
     clan_tag_with_brackets = ''
-    player_clan_data = wgapi.get_player_clan_data(account_id)
+    player_clan_data = wgapi.get_player_clan_data(account_id, 'asia')
     if player_clan_data:
         if player_clan_data['data'][str(account_id)]:
             clan_id = player_clan_data['data'][str(
                 account_id)]['clan_id']
             if clan_id:
-                clan_details = wgapi.get_clan_details(clan_id)
+                clan_details = wgapi.get_clan_details(clan_id, 'asia')
                 if clan_details:
                     clan_tag_with_brackets = '[{0}]'.format(
                         clan_details['data'][str(clan_id)]['tag'])
@@ -294,7 +294,7 @@ def onQQMessage(bot, contact, member, content):
 
             # check existence of user_name
             user_name = re_result.group(2)
-            players = wgapi.get_players(user_name)
+            players = wgapi.get_players(user_name, 'asia')
             if players:
 
                 # non existence user_name
@@ -316,7 +316,7 @@ def onQQMessage(bot, contact, member, content):
 
                 # get player personal data
                 player_personal_data = wgapi.get_player_personal_data(
-                    account_id)
+                    account_id, 'asia')
                 if player_personal_data['meta']['count'] == 0:
                     rw.type = 'error'
                     rw.error_prompt = 'user {0} not found'.format(nickname)
@@ -357,7 +357,7 @@ def onQQMessage(bot, contact, member, content):
 
                 # get player ship stats for total pr calculation
                 # TODO use right formula to calculate total pr
-                # player_ship_stats = wgapi.get_player_ship_stats(account_id)
+                # player_ship_stats = wgapi.get_player_ship_stats(account_id, asia)
                 # total_pr = pr.calc_total_pr(account_id, player_ship_stats)
 
                 # add category display
@@ -371,7 +371,7 @@ def onQQMessage(bot, contact, member, content):
 
                     # temp player_ship_stats created
                     # TODO delete after right total pr formula received
-                    player_ship_stats = wgapi.get_player_ship_stats(account_id)
+                    player_ship_stats = wgapi.get_player_ship_stats(account_id, 'asia')
 
                     rw.category_display += gain_ship_detail_display(
                         account_id, player_ship_stats, ship_category)
