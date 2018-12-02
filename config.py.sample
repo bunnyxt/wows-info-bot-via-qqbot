@@ -1,2 +1,8 @@
+# This is a sample of config.py file.
+# Fill in all the parameters surrounded by <>.
+# For example, change '<name>' to 'bunnyxt'.
+# Then rename this file to config.py before you add this plugin to qqbot.
+
 # wg application id
-wg_app_id = 'your_wg_application_id' 
+# get your wargaming application id from https://developers.wargaming.net/applications/
+wg_app_id = '<your_wg_application_id>' 
