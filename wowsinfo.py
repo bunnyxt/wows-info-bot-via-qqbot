@@ -24,8 +24,10 @@ class ResponseWrapper:
         self.error_prompt = ''
         self.time = ''
         self.echo = ''
-        self.deto = ''  # TODO rewrite it after rewrite deto part
+        self.deto = ''
         self.name_alter_prompt = ''
+        self.realm_prompt = ''
+        self.realm = ''
         self.clan_tag_with_brackets = ''
         self.nickname = ''
         self.info = ''
@@ -42,14 +44,15 @@ class ResponseWrapper:
             s += self.echo
         elif self.type == '-deto':
             s += self.name_alter_prompt
-            s += 'user {0}{1}\n'.format(self.clan_tag_with_brackets,
-                                        self.nickname)
+            s += '{0} user {1}{2}\n'.format(self.realm,
+                                            self.clan_tag_with_brackets, self.nickname)
             s += self.deto
             s += self.meme
         elif self.type == '-info':
+            s += self.realm_prompt
             s += self.name_alter_prompt
-            s += 'user {0}{1}\n'.format(self.clan_tag_with_brackets,
-                                        self.nickname)
+            s += '{0} user {1}{2}\n'.format(self.realm,
+                                            self.clan_tag_with_brackets, self.nickname)
             s += self.info
             s += self.category_display
             s += self.meme
@@ -60,15 +63,15 @@ def send_via_rw(bot, contact, rw):
     bot.SendTo(contact, rw.to_string())
 
 
-def gain_clan_tag_with_brackets(account_id):
+def gain_clan_tag_with_brackets(account_id, realm_string):
     clan_tag_with_brackets = ''
-    player_clan_data = wgapi.get_player_clan_data(account_id, 'asia')
+    player_clan_data = wgapi.get_player_clan_data(account_id, realm_string)
     if player_clan_data:
         if player_clan_data['data'][str(account_id)]:
             clan_id = player_clan_data['data'][str(
                 account_id)]['clan_id']
             if clan_id:
-                clan_details = wgapi.get_clan_details(clan_id, 'asia')
+                clan_details = wgapi.get_clan_details(clan_id, realm_string)
                 if clan_details:
                     clan_tag_with_brackets = '[{0}]'.format(
                         clan_details['data'][str(clan_id)]['tag'])
@@ -196,12 +199,14 @@ def onQQMessage(bot, contact, member, content):
 
             # get user_name
             user_name = re_result.group(1)
+            rw.realm = 'asia'
 
             # check existence of user_name
             player_info = detoapi.query_player(user_name)
             if len(player_info) == 0:
                 rw.type = 'error'
-                rw.error_prompt = 'user {0} not found'.format(user_name)
+                rw.error_prompt = '{0} user {1} not found'.format(
+                    rw.realm, user_name)
                 send_via_rw(bot, contact, rw)
                 return
 
@@ -219,14 +224,14 @@ def onQQMessage(bot, contact, member, content):
 
             if is_hidden == True:
                 rw.type = 'error'
-                rw.error_prompt = 'user {0} sets profile hidden'.format(
+                rw.error_prompt = 'asia user {0} sets profile hidden'.format(
                     nickname)
                 send_via_rw(bot, contact, rw)
                 return
 
             # get clan tag with brackets
             rw.clan_tag_with_brackets = gain_clan_tag_with_brackets(
-                account_id)
+                account_id, 'asia')
 
             # get deto statistics
             try:
@@ -277,7 +282,8 @@ def onQQMessage(bot, contact, member, content):
         content = meme.user_name_mapping(content)
 
         # pick param from instruction
-        re_result = re.search(r'-info(?:\s+-(\w+))?\s+(\w+)', content)
+        re_result = re.search(
+            r'-info(?:\s+-(\w+))?(?:\s+-r=(\w+))?(?:\s+(\w+))', content)
         if re_result:
 
             # check validity of ship_category
@@ -292,15 +298,42 @@ def onQQMessage(bot, contact, member, content):
                     send_via_rw(bot, contact, rw)
                     return
 
+            # check validity of realm_string
+            realm_string = re_result.group(2)
+            if realm_string:
+                if realm_string == 'aisa':
+                    rw.realm = 'asia'
+                    rw.realm_prompt = '-r=asia, realm asia selected\n'
+                elif realm_string == 'eu':
+                    rw.realm = 'eu'
+                    rw.realm_prompt = '-r=eu, realm eu selected\n'
+                elif realm_string == 'ru':
+                    rw.realm = 'ru'
+                    rw.realm_prompt = '-r=ru, realm ru selected\n'
+                elif realm_string == 'na':
+                    rw.realm = 'na'
+                    rw.realm_prompt = '-r=na, realm na selected\n'
+                else:
+                    # default realm asia
+                    rw.realm = 'asia'
+                    rw.realm_prompt = 'no realm called {0}, defaulf realm asia selected\n'.format(
+                        realm_string)
+                    realm_string = 'asia'
+            else:
+                # default realm asia
+                rw.realm = 'asia'
+                realm_string = 'asia'
+
             # check existence of user_name
-            user_name = re_result.group(2)
-            players = wgapi.get_players(user_name, 'asia')
+            user_name = re_result.group(3)
+            players = wgapi.get_players(user_name, realm_string)
             if players:
 
                 # non existence user_name
                 if players['meta']['count'] == 0:
                     rw.type = 'error'
-                    rw.error_prompt = 'user {0} not found'.format(user_name)
+                    rw.error_prompt = '{0} user {1} not found'.format(
+                        rw.realm, user_name)
                     send_via_rw(bot, contact, rw)
                     return
 
@@ -316,7 +349,7 @@ def onQQMessage(bot, contact, member, content):
 
                 # get player personal data
                 player_personal_data = wgapi.get_player_personal_data(
-                    account_id, 'asia')
+                    account_id, realm_string)
                 if player_personal_data['meta']['count'] == 0:
                     rw.type = 'error'
                     rw.error_prompt = 'user {0} not found'.format(nickname)
@@ -325,13 +358,14 @@ def onQQMessage(bot, contact, member, content):
                 if player_personal_data['meta']['hidden'] != None:
                     rw.type = 'error'
                     rw.error_prompt = rw.name_alter_prompt + \
-                        'user {0} sets profile hidden'.format(nickname)
+                        '{0} user {1} sets profile hidden'.format(
+                            rw.realm, nickname)
                     send_via_rw(bot, contact, rw)
                     return
 
                 # get clan tag with brackets
                 rw.clan_tag_with_brackets = gain_clan_tag_with_brackets(
-                    account_id)
+                    account_id, realm_string)
 
                 # get pvp statistics
                 stat_pvp = player_personal_data['data'][str(
@@ -357,7 +391,7 @@ def onQQMessage(bot, contact, member, content):
 
                 # get player ship stats for total pr calculation
                 # TODO use right formula to calculate total pr
-                # player_ship_stats = wgapi.get_player_ship_stats(account_id, asia)
+                # player_ship_stats = wgapi.get_player_ship_stats(account_id, realm_string)
                 # total_pr = pr.calc_total_pr(account_id, player_ship_stats)
 
                 # add category display
@@ -371,7 +405,8 @@ def onQQMessage(bot, contact, member, content):
 
                     # temp player_ship_stats created
                     # TODO delete after right total pr formula received
-                    player_ship_stats = wgapi.get_player_ship_stats(account_id, 'asia')
+                    player_ship_stats = wgapi.get_player_ship_stats(
+                        account_id, realm_string)
 
                     rw.category_display += gain_ship_detail_display(
                         account_id, player_ship_stats, ship_category)
@@ -391,6 +426,6 @@ def onQQMessage(bot, contact, member, content):
                 return
 
         rw.type = 'error'
-        rw.error_prompt = 'usage: -info [-(cv)|(bb)|(ca)|(dd)|(all)] <user_name>'
+        rw.error_prompt = 'usage: -info [-cv|bb|ca|dd|all] [-r=eu|ru|na|asia] <user_name>'
         send_via_rw(bot, contact, rw)
         return
