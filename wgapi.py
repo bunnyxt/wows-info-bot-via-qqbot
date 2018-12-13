@@ -7,7 +7,7 @@ wg_app_id = config.wg_app_id
 
 def get_from_wg_api(name, url, realm):
     # change realm
-    if realm == 'aisa':
+    if realm == 'asia':
         pass
     elif realm == 'eu':
         pass
