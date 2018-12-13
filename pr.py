@@ -8,8 +8,11 @@ expected_values_update_time = None
 
 def get_expected_values():
     global expected_values
-    r = urllib.request.urlopen(
-        'https://asia.wows-numbers.com/personal/rating/expected/json/')
+    url = 'https://asia.wows-numbers.com/personal/rating/expected/json/'
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36"}
+    req = urllib.request.Request(url, headers=headers)
+    r = urllib.request.urlopen(req)
     if r.status == 200:
         text = r.read()
         result = json.loads(text)
