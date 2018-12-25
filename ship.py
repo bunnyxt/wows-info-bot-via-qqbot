@@ -325,6 +325,11 @@ ship_dict = {
     3667867440: Ship(3667867440, 8, "Battleship", "Tirpitz B"),
     3751720400: Ship(3751720400, 7, "Cruiser", "Lazo"),
     3667867632: Ship(3667867632, 8, "Battleship", "Massachusetts B"),
+    3551409616:Ship(3551409616,9,"Destroyer","Neustrashimy"),
+    3764270832:Ship(3764270832,6,"Destroyer","Leone"),
+    3760109264:Ship(3760109264,10,"Cruiser","Azuma"),
+    3765352144:Ship(3765352144,5,"Cruiser","Yahagi"),
+    3766433584:Ship(3766433584,4,"Battleship","Viribus Unitis"),
     # old us ca
     4287543280: Ship(4287543280, 6, "Cruiser", "Cleveland (old)"),
     4282300400: Ship(4282300400, 7, "Cruiser", "Pensacola (old)"),
