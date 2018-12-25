@@ -389,10 +389,9 @@ def onQQMessage(bot, contact, member, content):
                 if battles != 0:
                     avgdmg = damage_dealt / battles
 
-                # get player ship stats for total pr calculation
-                # TODO use right formula to calculate total pr
-                # player_ship_stats = wgapi.get_player_ship_stats(account_id, realm_string)
-                # total_pr = pr.calc_total_pr(account_id, player_ship_stats)
+                player_ship_stats = wgapi.get_player_ship_stats(
+                    account_id, realm_string)
+                total_pr = pr.calc_total_pr(account_id, player_ship_stats)
 
                 # add category display
                 if ship_category:
@@ -403,11 +402,6 @@ def onQQMessage(bot, contact, member, content):
                         rw.category_display += ship_category.upper()
                     rw.category_display += ' stat'
 
-                    # temp player_ship_stats created
-                    # TODO delete after right total pr formula received
-                    player_ship_stats = wgapi.get_player_ship_stats(
-                        account_id, realm_string)
-
                     rw.category_display += gain_ship_detail_display(
                         account_id, player_ship_stats, ship_category)
 
@@ -415,9 +409,9 @@ def onQQMessage(bot, contact, member, content):
                 rw.meme = meme.meme_mapping(nickname)
 
                 rw.type = '-info'
-                rw.info = '⬇️pvp stat overview\nbattles {0} wr {1}% mbhr {2}%'.format(
-                    format(battles, ','), round(wr * 100, 2), round(mbhr * 100, 2)) + '\n' + 'avgdmg {0} maxdmg {1}'.format(
-                    format(round(avgdmg), ','), format(maxdmg, ','))
+                rw.info = '⬇️pvp stat overview\nbattles {0} wr {1}% mbhr {2}% pr {3}'.format(
+                    format(battles, ','), round(wr * 100, 2), round(mbhr * 100, 2), format(round(total_pr), ',')) + '\n' + 'avgdmg {0} maxdmg {1}'.format(
+                    format(round(avgdmg), ','), format(round(maxdmg), ','))
                 if nickname == 'momotxdi':
                     if random.randint(0, 1) != 0:
                         rw.info = '⬇️pvp stat overview\nbattles {0} wr {1}% mbhr {2}%'.format(format(battles, ','), round(
