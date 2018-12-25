@@ -4,6 +4,7 @@ user_name_map = {
     ' /Emoji128054': '_Kill_All ',
     ' /Emoji128049': '_Clear_All ',
     ' /Emoji127746': 'HimeYamato ',
+    '☂': 'HimeYamato ',
     'didi': 'Cyclopenta_pentalene '
 }
 
