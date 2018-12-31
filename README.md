@@ -1,3 +1,5 @@
+> ## Special notice: QQbot will be unavailable due to SmartQQ stop service on Jan. 1st 2019 and this plugin will be unavailable too. Thanks for your support and help!
+
 # wows-info-bot-via-qqbot
 
 A qq bot to provide info(etc. player stat and deto) of online PC game World of Warships(WoWS) via qqbot.
@@ -80,7 +82,7 @@ For example, in user_meme_map, `'didi': 'Cyclopenta_pentalene '` means that you 
 
 You can show some other words after display of statistics info to make fun. 
 
-For example. in meme_map, 
+For example, in meme_map, 
 
 ```
 'Cyclopenta_pentalene': [
